@@ -6,17 +6,17 @@
     <meta charset="utf-8" />
     <title>Uber GITHUB</title>
     <style>
-    	* { padding: 0; margin: 1000; padding-left: 100; }
+    	* { padding: 0; margin: 100; padding-left: 100; }
     </style>
 
 	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 
 </head>
 <body>
-    <ul id="cityListDisplay"></ul>
-
     <script>
     var mySurgeDict = null;
+    var userCity = null;
+
     $.getJSON("MYsurgeJSON.json", function(data){
     	mySurgeDict = data;
         $.each(data, function(city,dict){
@@ -25,9 +25,6 @@
                 alert("ERROR: " + textStatus + ", " + error);
     });   
 
-    
-    function myMonicaFunction(){
-    }
 
     function mybaby(){
     	window.alert(5 + 6);
@@ -36,40 +33,70 @@
     function searchCity(){
     	var userInput = document.getElementById("citySearch").value;
     	var cityListDisplay = document.getElementById("cityListDisplay");
-    	var matchedCitiesNum = 0;
     	var matchedCities = [];
 
     	$.each(mySurgeDict, function(city,dict){
     		cityLower = city.toLowerCase();
             if (cityLower.indexOf(userInput.toLowerCase()) >= 0){
-            	matchedCitiesNum++;
             	matchedCities.push(city);
-            }
-            if (matchedCitiesNum === 0) {
-            	cityListDisplay.innerHTML
             }
         });
 
     	$(cityListDisplay).empty();
+
     	for(var i=0; i<5; i++){
+    		myCity = matchedCities[i];
+
     		var LI = document.createElement("LI");
-    		var textnode = document.createTextNode(matchedCities[i]);
+    		var textnode = document.createTextNode(myCity);
     		LI.appendChild(textnode);
+
+    		LI.setAttribute("id",myCity);
+    		LI.addEventListener("mouseover", highlightMe, false);
+    		LI.addEventListener("mouseout", unhighlightMe, false);
+    		LI.addEventListener("click", mybaby, true);
+
     		if (matchedCities[i]){
     			cityListDisplay.appendChild(LI);
     		}
     	}
 
+    	if (matchedCities.length === 0){
+    		var noCityLI = document.createElement("LI");
+    		var noCityText = document.createTextNode("No City Found");
+    		noCityLI.appendChild(noCityText);
+    		cityListDisplay.appendChild(noCityLI);
+    	}
+    }
 
+
+    function highlightMe(cityName){
+    	this.setAttribute("style","background-color:Cyan");
+    	var myButton = document.createElement("button");
+    	myButton.innerHTML = "GO!";
+    	myButton.id = "myButton";
+    	myButton.setAttribute("style","margin-left:2em; pointer-events:none");
+    	this.appendChild(myButton);
+    }
+
+    function unhighlightMe(cityName){
+    	this.setAttribute("style","");
+    	this.removeChild(myButton);
     }
 
     </script>
 
-<form onsubmit="return false;">
-	<input type="search" id="citySearch" placeholder="Your city" oninput="searchCity()">
-	<br>
-	<br>
-</form>
+<div style = "border:1px solid black; width: 30%; margin:2em">
+	<form onsubmit="return false;">
+		<input type="search" id="citySearch" placeholder="Your city" oninput="searchCity()">
+	</form>
+	<ul id="cityListDisplay" style="list-style-type: none; padding-left: .5em">
+	</ul>
+
+</div>
+
+<br>
+<br>
 
 <form onsubmit="return false;">
 	Rides Per Year:
@@ -80,8 +107,6 @@
 
 
 <br>
-<button onclick="myMonicaFunction()" > MONICA GITHUB TEST</button>
-
 
 </body>
 </html>
