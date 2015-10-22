@@ -39,19 +39,8 @@
     //"json"
 	);
 */
-	
-	function initMap(mapLat,mapLong,mapZoom) {
-        var mapCanvas = document.getElementById('map');
-        var mapOptions = {
-        	center: new google.maps.LatLng(mapLat, mapLong),
-        	zoom: mapZoom,
-        	mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        var map = new google.maps.Map(mapCanvas, mapOptions);
-    }
-    google.maps.event.addDomListener(window, 'load', initMap(40,-100,3));
-
-    var mySurgeDict = null;
+	//Monica, is it even necessary to set this surgeDict up here? Probably not
+    //var mySurgeDict = null;
     var userCity = null;
 
     var baseFare = null;
@@ -63,7 +52,7 @@
     var distanceUnit = null;
     var currencyCode = null;
 
-
+    /*
     $.getJSON("mySurgeJson.json", function(data){
     	mySurgeDict = data;
         //$.each(data, function(city,dict){
@@ -71,6 +60,7 @@
     }).error(function(jqXhr, textStatus, error) {
                 alert("surge ERROR: " + textStatus + ", " + error);
     });   
+*/
 
     $.getJSON("myCityPrices.json", function(data){
     	myCityPricesDict = data;
@@ -78,43 +68,11 @@
                 alert("cityPrices ERROR: " + textStatus + ", " + error);
     });  
 
-
-    function setCityData(){
-    	userCity = this.childNodes[0].nodeValue;
-    	alert(userCity);
-    	baseFare = myCityPricesDict[userCity].baseFare;
-    	costPerMinute = myCityPricesDict[userCity].costPerMinute;
-    	costPerDistance = myCityPricesDict[userCity].costPerDistance;
-    	minimumFare = myCityPricesDict[userCity].minimumFare;
-    	cancellationFee = myCityPricesDict[userCity].cancellationFee;
-    	safeRidesFee = myCityPricesDict[userCity].safeRidesFee;
-    	distanceUnit = myCityPricesDict[userCity].distanceUnit;
-    	currencyCode = myCityPricesDict[userCity].currencyCode;
-    	if (distanceUnit == "km"){
-    		document.getElementById("distanceUnit").childNodes[0].nodeValue = "kilometers";
-    	}
-    	else if (distanceUnit == "mile"){
-    		document.getElementById("distanceUnit").childNodes[0].nodeValue = "miles";
-    	}
-    }
-
-    function calculateTotalPrice(){
-    	var ridesPerWeek = document.getElementById("ridesPerWeek").value;
-    	var distanceOfRides = document.getElementById("distanceOfRides").value;
-    	var durationOfRides = document.getElementById("durationOfRides").value;
-        var ridesPerYear = ridesPerWeek * 1;// 52.14;
-
-        var pricePerYear = (ridesPerYear*(distanceOfRides*costPerDistance+durationOfRides*costPerMinute+baseFare+safeRidesFee));
-        if (pricePerYear < minimumFare*ridesPerYear){
-        	pricePerYear=minimumFare*ridesPerYear;
-        }
-
-        alert("safeRidesFee: " + safeRidesFee);
-        alert("costPerMinute: "+ durationOfRides*costPerMinute);
-        alert("costPerDistance: " + distanceOfRides*costPerDistance);
-    	alert("Price Per Year: " + pricePerYear);
-
-    }
+    $.getJSON("myCityGeocodes.json", function(data){
+    	myCityGeocodesDict = data;
+    }).error(function(jqXhr, textStatus, error) {
+                alert("cityGeocodes ERROR: " + textStatus + ", " + error);
+    });  
 
     function searchCity(){
     	var userInput = document.getElementById("citySearch").value;
@@ -169,6 +127,61 @@
     	this.removeChild(myButton);
     }
 
+    function setCityData(){
+    	userCity = this.childNodes[0].nodeValue;
+    	alert(userCity);
+    	goToMap();
+    	baseFare = myCityPricesDict[userCity].baseFare;
+    	costPerMinute = myCityPricesDict[userCity].costPerMinute;
+    	costPerDistance = myCityPricesDict[userCity].costPerDistance;
+    	minimumFare = myCityPricesDict[userCity].minimumFare;
+    	cancellationFee = myCityPricesDict[userCity].cancellationFee;
+    	safeRidesFee = myCityPricesDict[userCity].safeRidesFee;
+    	distanceUnit = myCityPricesDict[userCity].distanceUnit;
+    	currencyCode = myCityPricesDict[userCity].currencyCode;
+    	if (distanceUnit == "km"){
+    		document.getElementById("distanceUnit").childNodes[0].nodeValue = "kilometers";
+    	}
+    	else if (distanceUnit == "mile"){
+    		document.getElementById("distanceUnit").childNodes[0].nodeValue = "miles";
+    	}
+    }
+
+    function calculateTotalPrice(){
+    	var ridesPerWeek = document.getElementById("ridesPerWeek").value;
+    	var distanceOfRides = document.getElementById("distanceOfRides").value;
+    	var durationOfRides = document.getElementById("durationOfRides").value;
+        var ridesPerYear = ridesPerWeek * 1;// 52.14;
+        var pricePerYear = (ridesPerYear*(distanceOfRides*costPerDistance+durationOfRides*costPerMinute+baseFare+safeRidesFee));
+        
+        if (pricePerYear < minimumFare*ridesPerYear){
+        	pricePerYear=minimumFare*ridesPerYear;
+        }
+
+        alert("safeRidesFee: " + safeRidesFee);
+        alert("costPerMinute: "+ durationOfRides*costPerMinute);
+        alert("costPerDistance: " + distanceOfRides*costPerDistance);
+    	alert("Price Per Year: " + pricePerYear);
+    }
+
+    function initMap(mapLat,mapLong,mapZoom) {
+        var mapCanvas = document.getElementById('map');
+        var mapOptions = {
+        	center: new google.maps.LatLng(mapLat, mapLong),
+        	zoom: mapZoom,
+        	mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(mapCanvas, mapOptions);
+    }
+    google.maps.event.addDomListener(window, 'load', initMap(40,-100,3));
+
+    function goToMap(){
+    	initMap();
+    	var cityLat = myCityGeocodesDict[userCity][0];
+    	var cityLong = myCityGeocodesDict[userCity][1];
+    	initMap(cityLat,cityLong,7);
+    }
+
     </script>
 
 <br>
@@ -178,10 +191,9 @@
 	<form onsubmit="return false;">
 		<input type="search" id="citySearch" placeholder="Your city" oninput="searchCity()">
 	</form>
-	<ul id="cityListDisplay" style="list-style-type: none; padding-left: .5em">
-	</ul>
-
+	<ul id="cityListDisplay" style="list-style-type: none; padding-left: .5em"></ul>
 </div>
+
 
 <br>
 <br>
