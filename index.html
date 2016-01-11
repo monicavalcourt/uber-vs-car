@@ -189,8 +189,8 @@
         }
         var pricePerYear = ridesPerYear*pricePerRide;
         pricePerYear = Math.round(pricePerYear);
-        var finalCarPrice = (carPrice/3) + parkingPerYear;
-        finalCarPrice = Math.round(carPrice);
+        var finalCarPrice = (carPrice/4) + parkingPerYear;
+        finalCarPrice = Math.round(finalCarPrice);
         
         document.getElementById("carPrice").innerHTML = '$' + finalCarPrice;
         document.getElementById("uberFinal").innerHTML = '$' + pricePerYear;
@@ -280,7 +280,7 @@
 <h3 style="position:absolute; top:81%; right:14%; width:30%; height:14%; font-size: 3em; text-align:center; color:grey" id ="carPrice"></h3>
 
 <div style = "position:absolute; float:right; width:15%; height:60%; top:55%; line-height: 3em; column-width: 5em; right:-5%">
-    <button style = "font-size:1.2em; width:4em; height:2em; z-index:5; position:relative" type="button" onclick="skipCar(0)"> Car </button><br>
+    <button style = "font-size:1.2em; width:4em; height:2em; z-index:5; position:relative; border-color: red" type="button" onclick="skipCar(0)"> Car </button><br>
     <button style = "font-size:1.2em; width:4em; height:2em; z-index:5; position:relative" type="button" onclick="skipCar(5)"> SUV </button><br>
     <button style = "font-size:1.2em; width:4em; height:2em; z-index:5; position:relative" type="button" onclick="skipCar(9)"> Luxury </button><br>
     <button style = "font-size:1.2em; width:4em; height:2em; z-index:5; position:relative" type="button" onclick="skipCar(12)"> Truck </button><br>
