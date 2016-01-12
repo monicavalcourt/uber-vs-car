@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-
     <meta charset="utf-8" />
     <title>Uber GITHUB</title>
     <style type="text/CSS">
@@ -21,7 +20,6 @@
 	<script src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
 	<script src="https://maps.googleapis.com/maps/api/js"></script>
 
-
 </head>
 <style>
     body {
@@ -39,7 +37,6 @@
     <h1 style="text-align:center; font-size:3.8em; font-family: Impact; letter-spacing: .1em; word-spacing: .5em; margin-right: 2em; margin-top: -.5%">UBER VS. CAR</h1>
     <div id="map" style="height:17em;margin-left:5%;width:30%;float:left; margin-top:-2.5%"></div>
     <script>
-
 
     var userCity = null;
     var userCityIndex = null;
@@ -71,7 +68,6 @@
     }).error(function(jqXhr, textStatus, error) {
         console.log("carPrices ERROR: " + textStatus + ", " + error);
     });
-
 
     function searchCity(){
     	var userInput = document.getElementById("citySearch").value;
@@ -132,7 +128,6 @@
     }
 
     function setCityData(){
-
         userCityIndex = this.id;
         userCity = allCityPrices[userCityIndex];
 
@@ -147,7 +142,6 @@
         LI.appendChild(textnode);
         cityListDisplay.appendChild(LI);
 
-        //cityStateString = userCity.cityState[0] + ", " + userCity.cityState[1];
     	goToMap();
     	baseFare = userCity.priceData.baseFare;
     	costPerMinute = userCity.priceData.costPerMinute;
@@ -157,7 +151,7 @@
     	safeRidesFee = userCity.priceData.safeRidesFee;
     	distanceUnit = userCity.priceData.distanceUnit;
     	currencyCode = userCity.priceData.currencyCode;
-        /*alert("baseFare: " + (baseFare + safeRidesFee) + " costPerMinute: " + costPerMinute + " costPerDistance: " + costPerDistance);*/
+
     	if (distanceUnit == "km"){
     		document.getElementById("distanceUnit").childNodes[0].nodeValue = "kilometers";
     	}
