@@ -5,25 +5,24 @@
     <title>Uber vs. Car</title>
 
     <style type="text/CSS">
-    * { padding: 0; margin: 100; padding-left: 100; }
-    #map {
-    	width: 30em;
-    	height: 20em;
-      }
+        * { padding: 0; margin: 100; padding-left: 100; }
+        #map {
+        	width: 30em;
+        	height: 20em;
+          }
 
-    div.bottomBackground{
-    background: #202024 url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid-dark@1x.gif) repeat left top;
-    background-size: 18px 18px;
-    opacity: 0.9
-    }
+        div.bottomBackground{
+        background: #202024 url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid-dark@1x.gif) repeat left top;
+        background-size: 18px 18px;
+        opacity: 0.9
+        }
 
-    body {
-    background: #fff url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid@1x.jpg) repeat left top;
-    color: #000;
-    padding-left: 25px;
-    padding-bottom: -100px;
-    }
-
+        body {
+        background: #fff url(https://d1a3f4spazzrp4.cloudfront.net/web-fresh/pattern-grid@1x.jpg) repeat left top;
+        color: #000;
+        padding-left: 25px;
+        padding-bottom: -100px;
+        }
     </style>
 
     <script type = "text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
@@ -31,7 +30,6 @@
 </head>
 
 <body>
-
     <!-- div for grey background at bottom of page -->
     <div class = "bottomBackground" style = "position:absolute; height:45%; width:105%; top:65%; margin-left: -5%; z-index: -10"> </div>
 
@@ -90,213 +88,213 @@
 
     <script type="text/javascript">
 
-        var userCity = null;
-        var userCityIndex = null;
+    var userCity = null;
+    var userCityIndex = null;
 
-        var baseFare = null;
-        var costPerMinute = null;
-        var costPerDistance = null;
-        var minimumFare = null;
-        var cancellationFee = null;
-        var safeRidesFee = null;
-        var distanceUnit = null;
-        var currencyCode = null;
+    var baseFare = null;
+    var costPerMinute = null;
+    var costPerDistance = null;
+    var minimumFare = null;
+    var cancellationFee = null;
+    var safeRidesFee = null;
+    var distanceUnit = null;
+    var currencyCode = null;
 
-        var carIndex = 3;
-        var carImageUrl = "";
-        var carName = "2015 Ford Taurus";
-        var carPrice = "47418";
-        var submitPressed = false;
+    var carIndex = 3;
+    var carImageUrl = "";
+    var carName = "2015 Ford Taurus";
+    var carPrice = "47418";
+    var submitPressed = false;
 
-        //uses jquery to retrieve the price data for all cities and the price data for all cars
-        $.getJSON("allCityPrices.json", function(data){
-            allCityPrices = data;
-        }).error(function(jqXhr, textStatus, error) {
-            console.log("allCityPrices ERROR: " + textStatus + ", " + error);
+    //uses jquery to retrieve the price data for all cities and the price data for all cars
+    $.getJSON("allCityPrices.json", function(data){
+        allCityPrices = data;
+    }).error(function(jqXhr, textStatus, error) {
+        console.log("allCityPrices ERROR: " + textStatus + ", " + error);
+    });
+    $.getJSON("carPrices.json", function(data){
+        carPrices = data;
+    }).error(function(jqXhr, textStatus, error) {
+        console.log("carPrices ERROR: " + textStatus + ", " + error);
+    });
+
+    //matches user-input to a list of cities, shows list of results below
+    function searchCity(){
+        var userInput = document.getElementById("citySearch").value;
+        var cityListDisplay = document.getElementById("cityListDisplay");
+        var matchedCities = [];
+
+        $.each(allCityPrices, function(index,cityData){
+            cityLower = cityData.cityState[0].toLowerCase();
+            if (cityLower.indexOf(userInput.toLowerCase()) >= 0){
+                matchedCities.push(index);
+            }
         });
-        $.getJSON("carPrices.json", function(data){
-            carPrices = data;
-        }).error(function(jqXhr, textStatus, error) {
-            console.log("carPrices ERROR: " + textStatus + ", " + error);
-        });
 
-        //matches user-input to a list of cities, shows list of results below
-        function searchCity(){
-            var userInput = document.getElementById("citySearch").value;
-            var cityListDisplay = document.getElementById("cityListDisplay");
-            var matchedCities = [];
+        //clear previous list of matched cities each time
+        $(cityListDisplay).empty();
 
-            $.each(allCityPrices, function(index,cityData){
-                cityLower = cityData.cityState[0].toLowerCase();
-                if (cityLower.indexOf(userInput.toLowerCase()) >= 0){
-                    matchedCities.push(index);
+        //create list node object for each city that matched the user input
+        for(var i=0; i<matchedCities.length; i++){
+            if (matchedCities[i]){
+                myCityIndex = matchedCities[i];
+                myCity = allCityPrices[myCityIndex];
+
+                var LI = document.createElement("LI");
+                cityStateString = myCity.cityState[0];
+                if (myCity.cityState[1]){
+                    cityStateString += ", " + myCity.cityState[1];
                 }
-            });
+                var textnode = document.createTextNode(cityStateString);
+                LI.appendChild(textnode);
 
-            //clear previous list of matched cities each time
-            $(cityListDisplay).empty();
+                LI.setAttribute("id", myCityIndex);
+                LI.addEventListener("mouseover", highlightMe, false);
+                LI.addEventListener("mouseout", unhighlightMe, false);
+                LI.addEventListener("click", setCityData, true);
 
-            //create list node object for each city that matched the user input
-            for(var i=0; i<matchedCities.length; i++){
-                if (matchedCities[i]){
-                    myCityIndex = matchedCities[i];
-                    myCity = allCityPrices[myCityIndex];
-
-                    var LI = document.createElement("LI");
-                    cityStateString = myCity.cityState[0];
-                    if (myCity.cityState[1]){
-                        cityStateString += ", " + myCity.cityState[1];
-                    }
-                    var textnode = document.createTextNode(cityStateString);
-                    LI.appendChild(textnode);
-
-                    LI.setAttribute("id", myCityIndex);
-                    LI.addEventListener("mouseover", highlightMe, false);
-                    LI.addEventListener("mouseout", unhighlightMe, false);
-                    LI.addEventListener("click", setCityData, true);
-
-                    cityListDisplay.appendChild(LI);
-                }
-            }
-
-            if (matchedCities.length === 0){
-                var noCityLI = document.createElement("LI");
-                var noCityText = document.createTextNode("No City Found");
-                noCityLI.appendChild(noCityText);
-                cityListDisplay.appendChild(noCityLI);
+                cityListDisplay.appendChild(LI);
             }
         }
 
-        //highlight in blue the city that the user is hovering over, add a GO! button to click
-        function highlightMe(){
-            this.setAttribute("style","background-color:Cyan");
-            var myButton = document.createElement("button");
-            myButton.innerHTML = "GO!";
-            myButton.id = "myButton";
-            myButton.setAttribute("style","margin-left:2em; pointer-events:none");
-            this.appendChild(myButton);
+        if (matchedCities.length === 0){
+            var noCityLI = document.createElement("LI");
+            var noCityText = document.createTextNode("No City Found");
+            noCityLI.appendChild(noCityText);
+            cityListDisplay.appendChild(noCityLI);
         }
+    }
 
-        //clear the blue highlight and go button when user stops hovering over city
-        function unhighlightMe(){
-            this.setAttribute("style","");
-            this.removeChild(myButton);
+    //highlight in blue the city that the user is hovering over, add a GO! button to click
+    function highlightMe(){
+        this.setAttribute("style","background-color:Cyan");
+        var myButton = document.createElement("button");
+        myButton.innerHTML = "GO!";
+        myButton.id = "myButton";
+        myButton.setAttribute("style","margin-left:2em; pointer-events:none");
+        this.appendChild(myButton);
+    }
+
+    //clear the blue highlight and go button when user stops hovering over city
+    function unhighlightMe(){
+        this.setAttribute("style","");
+        this.removeChild(myButton);
+    }
+
+    //once user chooses city, grab all price data for that city, display their choice in bold
+    function setCityData(){
+        userCityIndex = this.id;
+        userCity = allCityPrices[userCityIndex];
+
+        $(cityListDisplay).empty();
+        var LI = document.createElement("LI");
+        LI.style.fontWeight = "bold";
+        cityStateString = userCity.cityState[0];
+        if (userCity.cityState[1]){
+            cityStateString += ", " + userCity.cityState[1];
         }
+        var textnode = document.createTextNode(cityStateString);
+        LI.appendChild(textnode);
+        cityListDisplay.appendChild(LI);
 
-        //once user chooses city, grab all price data for that city, display their choice in bold
-        function setCityData(){
-            userCityIndex = this.id;
-            userCity = allCityPrices[userCityIndex];
+        goToMap();
+        baseFare = userCity.priceData.baseFare;
+        costPerMinute = userCity.priceData.costPerMinute;
+        costPerDistance = userCity.priceData.costPerDistance;
+        minimumFare = userCity.priceData.minimumFare;
+        cancellationFee = userCity.priceData.cancellationFee;
+        safeRidesFee = userCity.priceData.safeRidesFee;
+        distanceUnit = userCity.priceData.distanceUnit;
+        currencyCode = userCity.priceData.currencyCode;
 
-            $(cityListDisplay).empty();
-            var LI = document.createElement("LI");
-            LI.style.fontWeight = "bold";
-            cityStateString = userCity.cityState[0];
-            if (userCity.cityState[1]){
-                cityStateString += ", " + userCity.cityState[1];
-            }
-            var textnode = document.createTextNode(cityStateString);
-            LI.appendChild(textnode);
-            cityListDisplay.appendChild(LI);
-
-            goToMap();
-            baseFare = userCity.priceData.baseFare;
-            costPerMinute = userCity.priceData.costPerMinute;
-            costPerDistance = userCity.priceData.costPerDistance;
-            minimumFare = userCity.priceData.minimumFare;
-            cancellationFee = userCity.priceData.cancellationFee;
-            safeRidesFee = userCity.priceData.safeRidesFee;
-            distanceUnit = userCity.priceData.distanceUnit;
-            currencyCode = userCity.priceData.currencyCode;
-
-            //change the distance Unit displayed for different cities (metric friendly)
-            if (distanceUnit == "km"){
-                document.getElementById("distanceUnit").childNodes[0].nodeValue = "kilometers";
-            }
-            else if (distanceUnit == "mile"){
-                document.getElementById("distanceUnit").childNodes[0].nodeValue = "miles";
-            }
+        //change the distance Unit displayed for different cities (metric friendly)
+        if (distanceUnit == "km"){
+            document.getElementById("distanceUnit").childNodes[0].nodeValue = "kilometers";
         }
-
-        function calculateTotalPrice(){
-            //uses city data gathered from Uber API to calculate avg cost of ride per week, then year
-            if (!userCity){
-                alert("You must choose a city!");
-                return;
-            }
-            var ridesPerWeek = document.getElementById("ridesPerWeek").value;
-            var distanceOfRides = document.getElementById("distanceOfRides").value;
-            var durationOfRides = document.getElementById("durationOfRides").value;
-            var parkingPerWeek = document.getElementById("parkingCost").value;
-
-            //test if user entered invalid input into htmlnumber box
-            if (!(ridesPerWeek && durationOfRides && durationOfRides && parkingPerWeek)){
-                alert("Please enter numbers");
-                return;
-            }
-            submitPressed = true;
-
-            var ridesPerYear = ridesPerWeek * 52.14;
-            var parkingPerYear = parkingPerWeek * 52.14;
-            var pricePerRide = ((distanceOfRides*costPerDistance)+(durationOfRides*costPerMinute)+baseFare+safeRidesFee);
-            if (pricePerRide < minimumFare) {
-                pricePerRide = minimumFare;
-            }
-            var pricePerYear = ridesPerYear*pricePerRide;
-            pricePerYear = Math.round(pricePerYear);
-
-            //use 4-year car price data from car websites and divide by 4 to get price per year of car
-            var finalCarPrice = (carPrice/4) + parkingPerYear;
-            finalCarPrice = Math.round(finalCarPrice);
-            
-            document.getElementById("carPrice").innerHTML = '$' + finalCarPrice;
-            document.getElementById("uberFinal").innerHTML = '$' + pricePerYear;
+        else if (distanceUnit == "mile"){
+            document.getElementById("distanceUnit").childNodes[0].nodeValue = "miles";
         }
+    }
 
-        //use google API to display a map centered around the user's chosen city
-        function initMap(mapLat,mapLong,mapZoom) {
-            var mapCanvas = document.getElementById('map');
-            var mapOptions = {
-                center: new google.maps.LatLng(mapLat, mapLong),
-                zoom: mapZoom,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            };
-            var map = new google.maps.Map(mapCanvas, mapOptions);
+    function calculateTotalPrice(){
+        //uses city data gathered from Uber API to calculate avg cost of ride per week, then year
+        if (!userCity){
+            alert("You must choose a city!");
+            return;
         }
-        google.maps.event.addDomListener(window, 'load', initMap(40,-100,3));
+        var ridesPerWeek = document.getElementById("ridesPerWeek").value;
+        var distanceOfRides = document.getElementById("distanceOfRides").value;
+        var durationOfRides = document.getElementById("durationOfRides").value;
+        var parkingPerWeek = document.getElementById("parkingCost").value;
 
-        //change latitude and longitude of displayed city when user chooses new city
-        function goToMap(){
-            initMap();
-            var cityLat = userCity.coordinates[0];
-            var cityLong = userCity.coordinates[1];
-            initMap(cityLat,cityLong,13);
+        //test if user entered invalid input into htmlnumber box
+        if (!(ridesPerWeek && durationOfRides && durationOfRides && parkingPerWeek)){
+            alert("Please enter numbers");
+            return;
         }
+        submitPressed = true;
 
-        //change car choice by 1, or skip to index of different classes of cars (SUV, truck, etc..)
-        function upCar(num){
-            if (Math.abs(num) == 1){
-                carIndex += num;
-            }
-            else{
-                carIndex = num;
-            }
-            if (carIndex > (carPrices.length-1)){
-                carIndex = carPrices.length-1;
-            }
-            if (carIndex < (0)){
-                carIndex = 0;
-            }
-            carImageUrl = carPrices[carIndex].imageUrl;
-            carName = carPrices[carIndex].carName;
-            carPrice = carPrices[carIndex].price;
-            document.getElementById("carImage").src = carImageUrl;
-            document.getElementById("carName").innerHTML = carName;
-            //if user's initial manual submit has occured, changing the car will automatically re-calculate total price
-            if (submitPressed){
-                calculateTotalPrice();
-            }
+        var ridesPerYear = ridesPerWeek * 52.14;
+        var parkingPerYear = parkingPerWeek * 52.14;
+        var pricePerRide = ((distanceOfRides*costPerDistance)+(durationOfRides*costPerMinute)+baseFare+safeRidesFee);
+        if (pricePerRide < minimumFare) {
+            pricePerRide = minimumFare;
         }
+        var pricePerYear = ridesPerYear*pricePerRide;
+        pricePerYear = Math.round(pricePerYear);
+
+        //use 4-year car price data from car websites and divide by 4 to get price per year of car
+        var finalCarPrice = (carPrice/4) + parkingPerYear;
+        finalCarPrice = Math.round(finalCarPrice);
+        
+        document.getElementById("carPrice").innerHTML = '$' + finalCarPrice;
+        document.getElementById("uberFinal").innerHTML = '$' + pricePerYear;
+    }
+
+    //use google API to display a map centered around the user's chosen city
+    function initMap(mapLat,mapLong,mapZoom) {
+        var mapCanvas = document.getElementById('map');
+        var mapOptions = {
+            center: new google.maps.LatLng(mapLat, mapLong),
+            zoom: mapZoom,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(mapCanvas, mapOptions);
+    }
+    google.maps.event.addDomListener(window, 'load', initMap(40,-100,3));
+
+    //change latitude and longitude of displayed city when user chooses new city
+    function goToMap(){
+        initMap();
+        var cityLat = userCity.coordinates[0];
+        var cityLong = userCity.coordinates[1];
+        initMap(cityLat,cityLong,13);
+    }
+
+    //change car choice by 1, or skip to index of different classes of cars (SUV, truck, etc..)
+    function upCar(num){
+        if (Math.abs(num) == 1){
+            carIndex += num;
+        }
+        else{
+            carIndex = num;
+        }
+        if (carIndex > (carPrices.length-1)){
+            carIndex = carPrices.length-1;
+        }
+        if (carIndex < (0)){
+            carIndex = 0;
+        }
+        carImageUrl = carPrices[carIndex].imageUrl;
+        carName = carPrices[carIndex].carName;
+        carPrice = carPrices[carIndex].price;
+        document.getElementById("carImage").src = carImageUrl;
+        document.getElementById("carName").innerHTML = carName;
+        //if user's initial manual submit has occured, changing the car will automatically re-calculate total price
+        if (submitPressed){
+            calculateTotalPrice();
+        }
+    }
     </script>
 
 </body>
